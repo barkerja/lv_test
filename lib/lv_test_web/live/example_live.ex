@@ -4,25 +4,28 @@ defmodule LvTestWeb.Example do
   def render(assigns) do
     ~H"""
     <div id="lv_example">
-      <.live_component module={LvTestWeb.Component.A} id="a" />
-      <.live_component module={LvTestWeb.Component.B} id="b" time={@time} />
+      <.form :let={f} for={@form} id="form-example" phx-change="preserve_form">
+        <.live_component
+          module={LvTestWeb.Component.Select}
+          id="component-field-b"
+          field={f[:component_field_b]}
+        />
+        <.input field={f[:my_input]} id="my-input" />
+      </.form>
     </div>
     """
   end
 
-  def handle_info(:update, socket) do
-    IO.inspect(socket.assigns, label: "Example.handle_info/2 socket.assigns", pretty: true)
+  def handle_event("preserve_form", params, socket) do
+    socket = assign(socket, form: to_form(params))
 
-    Process.send_after(self(), :update, 1000)
-
-    {:noreply, assign(socket, :time, DateTime.utc_now())}
+    {:noreply, socket}
   end
 
   def mount(_params, _session, socket) do
-    if connected?(socket) do
-      Process.send_after(self(), :update, 1000)
-    end
+    # Use PID to kill the LV process to debug the form recovery issue
+    if connected?(socket), do: IO.puts("PID: #{inspect(self())}")
 
-    {:ok, assign(socket, :time, DateTime.utc_now())}
+    {:ok, assign(socket, form: to_form(%{}))}
   end
 end

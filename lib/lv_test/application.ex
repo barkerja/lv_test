@@ -11,7 +11,7 @@ defmodule LvTest.Application do
       # Start the Telemetry supervisor
       LvTestWeb.Telemetry,
       # Start the Ecto repository
-      LvTest.Repo,
+      # LvTest.Repo,
       # Start the PubSub system
       {Phoenix.PubSub, name: LvTest.PubSub},
       # Start Finch
